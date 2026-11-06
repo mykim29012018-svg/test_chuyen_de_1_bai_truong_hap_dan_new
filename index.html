@@ -1,0 +1,424 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Kiểm tra Trường hấp dẫn</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&family=Bitter:wght@600;700&display=swap">
+<style>
+/* Layout: thẻ câu hỏi bên trái, bảng điều hướng 35 câu bên phải; màn hình bắt đầu và màn hình kết quả là hai thẻ giữa trang. */
+:root {
+  --bg: #f3f6fb; --fg: #14203a; --muted: #55627d; --card: #ffffff; --line: #cfd8e8;
+  --accent: #14707f; --accent-ink: #ffffff; --accent-soft: #d9eef2;
+  --key: #f28c28; --key-ink: #2e1a00;
+  --ok: #1f7a4d; --ok-soft: #dff3e8; --bad: #b3314d; --bad-soft: #fbe3e8;
+  --warn: #9a5b00; --warn-soft: #fff0d6;
+  --font-display: "Bitter", Cambria, Georgia, serif;
+  --font-body: "Be Vietnam Pro", Calibri, "Segoe UI", system-ui, sans-serif;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0b1730; --fg: #e8eefb; --muted: #9db0d3; --card: #122447; --line: #2a3d66;
+    --accent: #4fc3d6; --accent-ink: #06222a; --accent-soft: #123f4b;
+    --key: #f28c28; --key-ink: #2e1a00;
+    --ok: #62d094; --ok-soft: #123a2a; --bad: #ff8aa3; --bad-soft: #4a1b28;
+    --warn: #f2b35a; --warn-soft: #4a3410; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0b1730; --fg: #e8eefb; --muted: #9db0d3; --card: #122447; --line: #2a3d66;
+  --accent: #4fc3d6; --accent-ink: #06222a; --accent-soft: #123f4b;
+  --key: #f28c28; --key-ink: #2e1a00;
+  --ok: #62d094; --ok-soft: #123a2a; --bad: #ff8aa3; --bad-soft: #4a1b28;
+  --warn: #f2b35a; --warn-soft: #4a3410; color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body {
+  background: var(--bg); color: var(--fg); font-family: var(--font-body); font-size: 16px; line-height: 1.55;
+  padding-block: 20px 36px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+}
+.wrap { max-width: 1120px; margin: 0 auto; display: grid; gap: 18px; }
+h1 { font-family: var(--font-display); font-size: clamp(1.5rem, 4vw, 2.1rem); line-height: 1.15; margin: 0; text-wrap: balance; }
+h2 { font-family: var(--font-display); font-size: 1.35rem; margin: 0; text-wrap: balance; }
+.sub { color: var(--muted); font-size: 0.95rem; margin: 4px 0 0; }
+.card { background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 20px; }
+sup, sub { line-height: 0; font-size: 0.72em; }
+button { font: inherit; color: inherit; }
+button:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+.btn { font-weight: 600; font-size: 0.95rem; border-radius: 10px; padding: 10px 18px; cursor: pointer; border: 1.5px solid var(--accent); background: var(--accent); color: var(--accent-ink); }
+.btn.ghost { background: transparent; color: var(--fg); border-color: var(--line); }
+.btn.ghost:hover:not(:disabled) { border-color: var(--accent); }
+.btn:disabled { opacity: 0.45; cursor: not-allowed; }
+.row { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+
+/* start */
+.start { display: grid; gap: 18px; max-width: 760px; margin: 0 auto; }
+.modes { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+@media (max-width: 600px) { .modes { grid-template-columns: minmax(0, 1fr); } }
+.mode { text-align: left; background: var(--bg); border: 1.5px solid var(--line); border-radius: 12px; padding: 16px; cursor: pointer; display: grid; gap: 6px; }
+.mode:hover { border-color: var(--accent); }
+.mode b { font-family: var(--font-display); font-size: 1.1rem; }
+.mode span { color: var(--muted); font-size: 0.92rem; }
+table.sc { width: 100%; border-collapse: collapse; font-size: 0.95rem; }
+table.sc th, table.sc td { text-align: left; padding: 8px 10px; border-bottom: 1px solid var(--line); }
+table.sc th { color: var(--muted); font-weight: 600; font-size: 0.8rem; letter-spacing: 0.06em; text-transform: uppercase; }
+.num { font-variant-numeric: tabular-nums; }
+
+/* quiz */
+.bar { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px 16px; }
+.pill { background: var(--card); border: 1px solid var(--line); border-radius: 999px; padding: 5px 14px; font-size: 0.9rem; font-weight: 600; font-variant-numeric: tabular-nums; }
+main.q { display: grid; grid-template-columns: minmax(0, 1fr) 280px; gap: 18px; align-items: start; }
+@media (max-width: 860px) { main.q { grid-template-columns: minmax(0, 1fr); } }
+.qhead { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 8px; align-items: center; margin-bottom: 10px; }
+.chip { font-size: 0.78rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--accent); }
+.pts { font-size: 0.85rem; color: var(--muted); font-variant-numeric: tabular-nums; }
+.stem { font-size: 1.12rem; margin: 0 0 14px; text-wrap: pretty; }
+.opts { display: grid; gap: 10px; }
+.opt { display: grid; grid-template-columns: 32px minmax(0, 1fr); gap: 12px; align-items: start; text-align: left; background: var(--bg); border: 1.5px solid var(--line); border-radius: 12px; padding: 12px 14px; cursor: pointer; }
+.opt:hover:not(:disabled) { border-color: var(--accent); }
+.opt i { font-style: normal; font-weight: 700; width: 32px; height: 32px; border-radius: 50%; display: grid; place-items: center; border: 1.5px solid var(--line); background: var(--card); }
+.opt.sel { border-color: var(--accent); background: var(--accent-soft); }
+.opt.sel i { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); }
+.opt.ok { border-color: var(--ok); background: var(--ok-soft); }
+.opt.ok i { background: var(--ok); color: var(--bg); border-color: var(--ok); }
+.opt.bad { border-color: var(--bad); background: var(--bad-soft); }
+.opt.bad i { background: var(--bad); color: var(--bg); border-color: var(--bad); }
+.opt:disabled { cursor: default; }
+.stm { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 8px 14px; align-items: center; background: var(--bg); border: 1.5px solid var(--line); border-radius: 12px; padding: 12px 14px; }
+.stm.ok { border-color: var(--ok); } .stm.bad { border-color: var(--bad); }
+.stm p { margin: 0; }
+.stm .lab { font-weight: 700; margin-right: 6px; color: var(--accent); }
+.tf { display: flex; gap: 6px; }
+.tf button { min-width: 64px; padding: 8px 12px; border-radius: 9px; border: 1.5px solid var(--line); background: var(--card); cursor: pointer; font-weight: 600; font-size: 0.92rem; }
+.tf button.sel { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); }
+.tf button.key { box-shadow: 0 0 0 2.5px var(--ok); }
+.tf button.wrong { background: var(--bad-soft); border-color: var(--bad); color: var(--bad); }
+.tf button:disabled { cursor: default; }
+.why { grid-column: 1 / -1; margin: 0; font-size: 0.92rem; color: var(--muted); }
+.stm.ok .why b { color: var(--ok); } .stm.bad .why b { color: var(--bad); }
+.explain { margin-top: 14px; padding: 12px 14px; border-radius: 12px; background: var(--accent-soft); font-size: 0.95rem; }
+.explain b { display: block; margin-bottom: 2px; }
+.explain.ok b { color: var(--ok); } .explain.bad b { color: var(--bad); }
+.nav2 { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 10px; margin-top: 16px; }
+.grp { font-size: 0.78rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); margin: 0 0 8px; }
+.grid { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 6px; }
+.nb { height: 38px; border-radius: 8px; border: 1.5px solid var(--line); background: var(--bg); cursor: pointer; font-weight: 600; font-size: 0.88rem; font-variant-numeric: tabular-nums; }
+.nb.done { background: var(--accent-soft); border-color: var(--accent); }
+.nb.ok { background: var(--ok-soft); border-color: var(--ok); color: var(--ok); }
+.nb.bad { background: var(--bad-soft); border-color: var(--bad); color: var(--bad); }
+.nb.part { background: var(--warn-soft); border-color: var(--warn); color: var(--warn); }
+.nb.cur { box-shadow: 0 0 0 2.5px var(--fg); }
+aside.nav { display: grid; gap: 16px; position: sticky; top: 12px; }
+@media (max-width: 860px) { aside.nav { position: static; } }
+
+/* result */
+.result { display: grid; gap: 16px; max-width: 820px; margin: 0 auto; }
+.pill.low { background: var(--bad-soft); border-color: var(--bad); color: var(--bad); }
+.big { font-family: var(--font-display); font-size: clamp(3rem, 12vw, 4.6rem); line-height: 1; color: var(--accent); font-variant-numeric: tabular-nums; }
+.big small { font-size: 0.4em; color: var(--muted); }
+.parts { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+@media (max-width: 600px) { .parts { grid-template-columns: minmax(0, 1fr); } }
+.part { background: var(--bg); border: 1px solid var(--line); border-radius: 12px; padding: 14px; display: grid; gap: 2px; }
+.part b { font-size: 1.5rem; font-family: var(--font-display); font-variant-numeric: tabular-nums; }
+.part span { color: var(--muted); font-size: 0.9rem; }
+.meter { height: 10px; border-radius: 6px; background: var(--line); overflow: hidden; }
+.meter i { display: block; height: 100%; background: var(--accent); }
+.who { display: grid; grid-template-columns: minmax(0, 2fr) minmax(0, 1fr); gap: 12px; }
+@media (max-width: 600px) { .who { grid-template-columns: minmax(0, 1fr); } }
+.who label { display: grid; gap: 4px; font-weight: 600; font-size: 0.9rem; }
+.who input { font: inherit; font-weight: 400; color: var(--fg); background: var(--bg); border: 1.5px solid var(--line); border-radius: 10px; padding: 10px 12px; width: 100%; }
+.who input:focus-visible { outline: 3px solid var(--accent); outline-offset: 1px; }
+.lv { display: grid; grid-template-columns: 110px minmax(0, 1fr) 60px; gap: 10px; align-items: center; font-size: 0.92rem; }
+.fig { margin: 0 0 16px; display: grid; gap: 8px; justify-items: center; }
+.fig svg { width: 100%; max-width: 520px; height: auto; border-radius: 16px; box-shadow: 0 6px 18px rgba(20, 32, 58, .18); }
+.fig figcaption { color: var(--muted); font-size: 0.88rem; text-align: center; }
+</style>
+
+<div class="wrap" id="app"></div>
+
+<script>
+/* ---------- dữ liệu ---------- */
+const MCQ = [
+  { lv: 0, q: "Phát biểu nào sau đây về lực hấp dẫn là đúng?", o: ["Lực hấp dẫn chỉ xuất hiện khi hai vật tiếp xúc với nhau.", "Lực hấp dẫn giữa hai vật có khối lượng luôn là lực hút.", "Lực hấp dẫn có thể là lực hút hoặc lực đẩy tùy khối lượng của vật.", "Lực hấp dẫn chỉ tác dụng giữa Trái Đất và các vật ở gần mặt đất."], a: 1, e: "Mọi vật có khối lượng đều hút nhau bằng lực hấp dẫn, tác dụng từ xa mà không cần tiếp xúc." },
+  { lv: 0, q: "Nhà bác học nào phát hiện ra lực làm viên đá rơi xuống mặt đất có cùng bản chất với lực giữ Mặt Trăng quay quanh Trái Đất?", o: ["Cavendish", "Kepler", "Newton", "Tycho Brahe"], a: 2, e: "Newton nhận ra lực làm vật rơi, lực giữ Mặt Trăng quanh Trái Đất và lực giữ các hành tinh quanh Mặt Trời cùng là lực hấp dẫn." },
+  { lv: 0, q: "Định luật vạn vật hấp dẫn: hai vật tương tác với nhau bằng một lực có độ lớn …", o: ["tỉ lệ thuận với khoảng cách và tỉ lệ nghịch với tích hai khối lượng.","tỉ lệ thuận với tích khối lượng và tỉ lệ nghịch với bình phương khoảng cách.","tỉ lệ nghịch với tích khối lượng và tỉ lệ thuận với bình phương khoảng cách.","tỉ lệ thuận với tổng hai khối lượng và tỉ lệ nghịch với khoảng cách."], a: 1, e: "F tỉ lệ thuận với m_{1}m_{2} và tỉ lệ nghịch với r^{2}." },
+  { lv: 0, q: "Biểu thức độ lớn lực hấp dẫn giữa hai chất điểm có khối lượng m_{1}, m_{2} cách nhau r là:", o: ["F_{hd} = G·m_{1}m_{2}/r", "F_{hd} = G·m_{1}m_{2}/r^{2}", "F_{hd} = G·(m_{1} + m_{2})/r^{2}", "F_{hd} = G·m_{1}m_{2}·r^{2}"], a: 1, e: "Đây là biểu thức (1.1): F_{hd} = G·m_{1}m_{2}/r^{2}." },
+  { lv: 0, q: "Trong hệ SI, hằng số hấp dẫn G có đơn vị là:", o: ["N·m/kg", "N·kg^{2}/m^{2}", "N·m^{2}/kg^{2}", "N·kg/m^{2}"], a: 2, e: "Từ G = F·r^{2}/(m_{1}m_{2}) suy ra đơn vị N·m^{2}/kg^{2}." },
+  { lv: 0, q: "Giá trị của hằng số hấp dẫn G (theo SGK) là:", o: ["6,68·10^{−11} N·m^{2}/kg^{2}", "6,68·10^{11} N·m^{2}/kg^{2}", "9,81 N·m^{2}/kg^{2}", "6,68·10^{−6} N·m^{2}/kg^{2}"], a: 0, e: "G = 6,68·10^{−11} N·m^{2}/kg^{2}, một giá trị rất nhỏ." },
+  { lv: 0, q: "Biểu thức F_{hd} = G·m_{1}m_{2}/r^{2} có thể áp dụng cho trường hợp nào sau đây?", o: ["Hai vật bất kì, có hình dạng tùy ý, đặt cách nhau một khoảng bất kì.","Hai chất điểm, hoặc hai quả cầu đồng chất với r là khoảng cách hai tâm.","Chỉ hai vật có khối lượng bằng nhau và đặt cách nhau rất xa.","Chỉ giữa Trái Đất và một vật đang rơi tự do ở gần mặt đất."], a: 1, e: "Khối lượng phân bố đều trong vật hình cầu được xem như tập trung ở tâm, nên r là khoảng cách giữa hai tâm." },
+  { lv: 0, q: "Ai là người đầu tiên đo được độ lớn của hằng số hấp dẫn G bằng thí nghiệm?", o: ["Newton", "Kepler", "Galileo", "Cavendish"], a: 3, e: "Henry Cavendish đo được G hơn một thế kỉ sau khi Newton phát hiện định luật." },
+  { lv: 0, q: "Thí nghiệm của Cavendish phát hiện lực hấp dẫn rất nhỏ bằng cách nào?", o: ["Đo độ dãn của một lò xo gắn với hai quả cầu chì.","Đo góc xoắn của sợi dây thạch anh qua vết sáng phản xạ trên gương.","Đo chu kì dao động của con lắc đơn đặt gần hai quả cầu.","So sánh trọng lượng hai quả cầu trên một chiếc cân đòn nhạy."], a: 1, e: "Lực hấp dẫn giữa quả cầu lớn và quả cầu nhỏ làm dây treo xoắn, tia sáng phản xạ dịch chuyển trên thước, từ đó tính được góc xoắn và G." },
+  { lv: 0, q: "Về mối quan hệ giữa trọng lực và lực hấp dẫn, phát biểu nào đúng?", o: ["Trọng lực là loại lực hoàn toàn khác với lực hấp dẫn của Trái Đất.","Trọng lực là lực hấp dẫn của Trái Đất tác dụng lên vật có khối lượng.","Trọng lực là lực hấp dẫn xuất hiện giữa hai vật có khối lượng bất kì.","Trọng lực chỉ xuất hiện khi vật đang chuyển động rơi xuống đất."], a: 1, e: "Trên Trái Đất, trọng lực là lực hấp dẫn của Trái Đất tác dụng lên vật." },
+  { lv: 1, img: "ball", q: "Một quả bóng khối lượng không đổi đặt lần lượt ở nhiều vị trí khác nhau trên mặt Trái Đất. Lực hấp dẫn của Trái Đất tác dụng lên quả bóng ở các vị trí đó:", o: ["bằng nhau về độ lớn, có phương là đường nối với tâm Trái Đất, hướng về tâm.","bằng nhau về độ lớn và có chung một phương thẳng đứng ở mọi vị trí.","khác nhau về độ lớn vì quả bóng ở những vị trí khác nhau trên mặt đất.","bằng nhau về độ lớn, có phương tiếp tuyến với mặt đất tại mỗi vị trí."], a: 0, e: "Khoảng cách tới tâm Trái Đất như nhau nên độ lớn bằng nhau; phương là đường nối với tâm, chiều hướng vào tâm." },
+  { lv: 1, q: "Khi khoảng cách giữa hai vật tăng gấp đôi (khối lượng không đổi) thì lực hấp dẫn giữa chúng:", o: ["tăng gấp đôi.", "giảm 2 lần.", "giảm 4 lần.", "tăng 4 lần."], a: 2, e: "F tỉ lệ nghịch với r^{2}: r tăng 2 lần thì F giảm 2^{2} = 4 lần." },
+  { lv: 1, q: "Trường hấp dẫn là:", o: ["trường lực do vật có khối lượng tạo ra quanh nó, tác dụng lực hấp dẫn lên vật khác.","trường lực chỉ tồn tại xung quanh Trái Đất và các hành tinh lớn.","trường lực do các vật mang điện tạo ra, tác dụng lực lên điện tích.","vùng không gian hoàn toàn không có vật chất nằm giữa các thiên thể."], a: 0, e: "Mọi vật có khối lượng đều tạo ra trường hấp dẫn; đây là một dạng vật chất tồn tại quanh vật." },
+  { lv: 1, q: "Quả táo rơi xuống đất. Lực Trái Đất hút quả táo và lực quả táo hút Trái Đất:", o: ["bằng nhau về độ lớn và ngược chiều nhau, đặt vào hai vật khác nhau.","lực của Trái Đất lớn hơn rất nhiều vì khối lượng Trái Đất rất lớn.","lực của quả táo lớn hơn vì quả táo đang chuyển động nhanh dần.","chỉ có lực Trái Đất hút quả táo, quả táo không hút lại Trái Đất."], a: 0, e: "Hai lực là lực và phản lực nên cùng độ lớn, ngược chiều, đặt vào hai vật khác nhau." },
+  { lv: 1, q: "Vì sao ta không thấy Trái Đất rơi về phía quả táo?", o: ["Vì quả táo quá nhẹ nên không hút được Trái Đất.","Vì lực quả táo tác dụng lên Trái Đất nhỏ hơn rất nhiều lực ngược lại.","Vì Trái Đất có khối lượng rất lớn nên gia tốc a = F/M cực kì nhỏ.","Vì hai lực hấp dẫn đó cân bằng nhau nên Trái Đất đứng yên."], a: 2, e: "Hai lực bằng nhau nhưng gia tốc của Trái Đất a = F/M rất nhỏ nên không quan sát được." },
+  { lv: 1, q: "Vì sao ta không cảm nhận được lực hấp dẫn giữa các vật có khối lượng bình thường trong đời sống?", o: ["Vì lực hấp dẫn chỉ tồn tại giữa các thiên thể có khối lượng lớn.","Vì G rất nhỏ và khối lượng các vật bé nên lực hấp dẫn cực kì nhỏ.","Vì lực ma sát với mặt đất triệt tiêu hoàn toàn lực hấp dẫn.","Vì không khí xung quanh cản trở và làm mất lực hấp dẫn."], a: 1, e: "G ≈ 6,68·10^{−11} N·m^{2}/kg^{2} rất nhỏ nên lực giữa các vật thông thường gần như không đáng kể." },
+  { lv: 1, q: "Gia tốc rơi tự do của vật ở độ cao h so với mặt đất (R, M là bán kính và khối lượng Trái Đất) được tính bằng:", o: ["g = GM/R", "g = GM/(R + h)^{2}", "g = GM/h^{2}", "g = GMh/R^{2}"], a: 1, e: "Cho trọng lực bằng lực hấp dẫn: mg = G·mM/(R + h)^{2}, suy ra g = GM/(R + h)^{2}." },
+  { lv: 1, q: "Triều cường xảy ra khi:", o: ["Mặt Trời, Trái Đất và Mặt Trăng gần thẳng hàng.","Mặt Trăng, Trái Đất và Mặt Trời tạo góc gần vuông.","Mặt Trăng ở vị trí xa Trái Đất nhất trên quỹ đạo.","Mặt Trời ở vị trí xa Trái Đất nhất trên quỹ đạo."], a: 0, e: "Khi ba thiên thể gần thẳng hàng, lực hấp dẫn của Mặt Trăng và Mặt Trời lên nước biển cộng lại nên triều lên cao nhất." },
+  { lv: 2, q: "Hai quả cầu giống nhau, mỗi quả 5 kg, tâm cách nhau 100 cm. Lực hấp dẫn giữa chúng xấp xỉ:", o: ["1,67·10^{−9} N", "3,34·10^{−10} N", "1,67·10^{−11} N", "8,35·10^{−10} N"], a: 0, e: "r = 1 m; F = 6,68·10^{−11}·5·5/1^{2} ≈ 1,67·10^{−9} N." },
+  { lv: 2, img: "spheres", q: "Hai quả cầu giống nhau, mỗi quả 3 kg, bán kính 10 cm, tâm đặt cách nhau 80 cm. Lực hấp dẫn giữa chúng xấp xỉ:", o: ["9,4·10^{−10} N", "1,7·10^{−9} N", "7,5·10^{−11} N", "6,0·10^{−10} N"], a: 0, e: "r là khoảng cách giữa hai tâm = 0,8 m; F = 6,68·10^{−11}·3·3/0,8^{2} ≈ 9,4·10^{−10} N." },
+  { lv: 2, q: "Hai tàu thủy, mỗi tàu có khối lượng 50 000 tấn, cách nhau 1 km. Lực hấp dẫn giữa chúng xấp xỉ:", o: ["0,17 N", "1,7·10^{−7} N", "17 N", "1,7·10^{−3} N"], a: 0, e: "m = 5·10^{7} kg, r = 10^{3} m; F = 6,68·10^{−11}·(5·10^{7})^{2}/(10^{3})^{2} ≈ 0,17 N." },
+  { lv: 2, q: "Lực hấp dẫn giữa hai vật là F. Nếu tăng khối lượng của một vật lên 3 lần và tăng khoảng cách giữa hai vật lên 3 lần thì lực hấp dẫn mới là:", o: ["F/3", "3F", "F/9", "9F"], a: 0, e: "F' = G·(3m_{1})m_{2}/(3r)^{2} = 3F/9 = F/3." },
+  { lv: 2, q: "Cho R = 6,4·10^{6} m, M = 6·10^{24} kg, G = 6,68·10^{−11} N·m^{2}/kg^{2}. Gia tốc rơi tự do sát mặt đất xấp xỉ:", o: ["9,8 m/s^{2}", "19,6 m/s^{2}", "4,9 m/s^{2}", "1,6 m/s^{2}"], a: 0, e: "g = GM/R^{2} = 6,68·10^{−11}·6·10^{24}/(6,4·10^{6})^{2} ≈ 9,8 m/s^{2}." },
+  { lv: 2, q: "Biết g_{0} = 9,81 m/s^{2} ở mặt đất. Ở độ cao h = R (R là bán kính Trái Đất) so với mặt đất, gia tốc rơi tự do bằng:", o: ["4,9 m/s^{2}", "2,45 m/s^{2}", "1,09 m/s^{2}", "19,6 m/s^{2}"], a: 1, e: "Khoảng cách tới tâm là 2R nên g = g_{0}/(1 + h/R)^{2} = g_{0}/4 ≈ 2,45 m/s^{2}." },
+  { lv: 2, q: "Một vật chuyển động tròn đều sát mặt đất quanh Trái Đất (coi R + h ≈ R = 6,4·10^{6} m), lực hấp dẫn đóng vai trò lực hướng tâm. Lấy g = 9,81 m/s^{2}. Tốc độ của vật xấp xỉ:", o: ["7,9 km/s", "9,8 km/s", "3,1 km/s", "15,8 km/s"], a: 0, e: "mg = mv^{2}/R nên v = √(gR) = √(9,81·6,4·10^{6}) ≈ 7,9·10^{3} m/s." },
+];
+const LEVELS = ["Nhận biết", "Thông hiểu", "Vận dụng"];
+const DS = [
+  { img: "cone", q: "Trong trò chơi ném còn, quả còn được ném lên rồi rơi xuống qua “vòng còn” trên cây cột.", s: [
+    { t: "Quả còn rơi xuống vì chịu lực hấp dẫn của Trái Đất.", v: true, e: "Lực hấp dẫn của Trái Đất kéo quả còn xuống." },
+    { t: "Nếu không có lực hấp dẫn và bỏ qua cản của không khí, sau khi rời tay quả còn chuyển động thẳng đều.", v: true, e: "Không có lực tác dụng thì vật giữ nguyên vận tốc (định luật I Newton)." },
+    { t: "Để quả còn lọt qua vòng còn, người chơi phải ném ngang.", v: false, e: "Phải ném xiên lên cao để quả còn bay lên rồi rơi xuống qua vòng." },
+    { t: "Lực hấp dẫn của Trái Đất lên quả còn có phương nằm ngang.", v: false, e: "Phương của lực là đường nối quả còn với tâm Trái Đất, gần mặt đất là phương thẳng đứng." } ] },
+  { img: "stone", q: "Viên đá được thả hoặc ném ngang ở gần mặt đất (Hình 1.2).", s: [
+    { t: "Lực hút của Trái Đất lên viên đá có phương thẳng đứng.", v: true, e: "Gần mặt đất, đường nối viên đá với tâm Trái Đất là phương thẳng đứng." },
+    { t: "Lực hút của Trái Đất lên viên đá có chiều hướng về phía Trái Đất.", v: true, e: "Đó là lực hút nên hướng về phía Trái Đất." },
+    { t: "Khi ném ngang với tốc độ lớn hơn, lực hút của Trái Đất lên viên đá tăng lên.", v: false, e: "Lực hút phụ thuộc khối lượng và khoảng cách, không phụ thuộc tốc độ ném." },
+    { t: "Độ lớn lực hút của Trái Đất lên viên đá bằng trọng lượng của viên đá.", v: true, e: "Trọng lực chính là lực hấp dẫn của Trái Đất tác dụng lên vật." } ] },
+  { q: "Hai vật có khối lượng m_{1}, m_{2} cách nhau r tương tác hấp dẫn với nhau.", s: [
+    { t: "Độ lớn lực hấp dẫn tỉ lệ thuận với tích m_{1}m_{2}.", v: true, e: "Theo định luật vạn vật hấp dẫn." },
+    { t: "Độ lớn lực hấp dẫn tỉ lệ nghịch với khoảng cách r.", v: false, e: "Lực tỉ lệ nghịch với bình phương khoảng cách, r^{2}." },
+    { t: "Hai lực mà hai vật tác dụng lên nhau có cùng độ lớn và ngược chiều.", v: true, e: "F_{AB} = −F_{BA}: lực và phản lực." },
+    { t: "Vật có khối lượng lớn hơn hút vật kia bằng lực lớn hơn.", v: false, e: "Hai lực luôn bằng nhau về độ lớn dù khối lượng khác nhau." } ] },
+  { q: "Xét biểu thức F_{hd} = G·m_{1}m_{2}/r^{2} (1.1).", s: [
+    { t: "Biểu thức áp dụng được cho hai chất điểm.", v: true, e: "Đây là điều kiện áp dụng cơ bản." },
+    { t: "Với hai quả cầu đồng chất, r là khoảng cách giữa hai tâm.", v: true, e: "Khối lượng mỗi quả cầu được xem như tập trung ở tâm." },
+    { t: "Với hai quả cầu đồng chất, r là khoảng cách giữa hai điểm gần nhau nhất trên mặt hai quả cầu.", v: false, e: "r phải là khoảng cách giữa hai tâm." },
+    { t: "Với vật hình cầu đồng chất có bán kính rất nhỏ so với khoảng cách, có thể xem khối lượng của vật tập trung ở tâm.", v: true, e: "Đúng theo SGK." } ] },
+  { q: "Về hằng số hấp dẫn G và thí nghiệm Cavendish.", s: [
+    { t: "G = 6,68·10^{−11} N·m^{2}/kg^{2}.", v: true, e: "Giá trị theo SGK." },
+    { t: "G rất nhỏ nên ta không cảm nhận được lực hấp dẫn giữa các vật có khối lượng bình thường.", v: true, e: "Lực rất nhỏ so với các lực thường gặp." },
+    { t: "Cavendish đo được G hơn một thế kỉ sau khi Newton phát hiện định luật vạn vật hấp dẫn.", v: true, e: "Đúng theo mục Em có biết." },
+    { t: "Trong thí nghiệm của Cavendish, hai quả cầu lớn có khối lượng khoảng 1,6 kg.", v: false, e: "Hai quả cầu lớn có khối lượng gần 160 kg, bán kính 23 cm." } ] },
+  { q: "Quả táo đang rơi xuống mặt đất.", s: [
+    { t: "Trọng lực tác dụng lên quả táo chính là lực hấp dẫn của Trái Đất tác dụng lên táo.", v: true, e: "Trọng lực là trường hợp riêng của lực hấp dẫn." },
+    { t: "Quả táo cũng hút Trái Đất bằng một lực có cùng độ lớn.", v: true, e: "Hai lực là lực và phản lực." },
+    { t: "Hai lực đó cân bằng nhau nên quả táo chuyển động thẳng đều.", v: false, e: "Hai lực đặt vào hai vật khác nhau nên không cân bằng; táo rơi nhanh dần." },
+    { t: "Gia tốc mà quả táo gây ra cho Trái Đất lớn bằng gia tốc rơi của quả táo.", v: false, e: "a = F/m nên gia tốc của Trái Đất nhỏ hơn rất nhiều vì khối lượng Trái Đất rất lớn." } ] },
+  { img: "spheres", q: "Hai quả cầu giống nhau, mỗi quả 3 kg, bán kính 10 cm, tâm đặt cách nhau 80 cm (lấy g = 9,81 m/s^{2}).", s: [
+    { t: "Khi tính lực hấp dẫn giữa hai quả cầu phải dùng r = 0,6 m (khoảng cách giữa hai mặt cầu).", v: false, e: "Phải dùng khoảng cách giữa hai tâm, r = 0,8 m." },
+    { t: "Lực hấp dẫn giữa hai quả cầu xấp xỉ 9,4·10^{−10} N.", v: true, e: "F = 6,68·10^{−11}·9/0,64 ≈ 9,4·10^{−10} N." },
+    { t: "Trọng lực tác dụng lên mỗi quả cầu xấp xỉ 29,4 N.", v: true, e: "P = mg = 3·9,81 ≈ 29,4 N." },
+    { t: "Lực hấp dẫn giữa hai quả cầu lớn hơn trọng lực của mỗi quả.", v: false, e: "Trọng lực lớn hơn khoảng 3·10^{10} lần vì Trái Đất có khối lượng rất lớn." } ] },
+  { q: "Gia tốc rơi tự do ở độ cao h so với mặt đất được tính theo g = GM/(R + h)^{2}.", s: [
+    { t: "g không phụ thuộc khối lượng của vật rơi.", v: true, e: "Khối lượng vật bị triệt tiêu trong biểu thức." },
+    { t: "Càng lên cao, g càng giảm.", v: true, e: "R + h tăng nên g giảm." },
+    { t: "Ở gần mặt đất (h ≪ R), g gần như không đổi.", v: true, e: "Khi đó R + h ≈ R, g ≈ GM/R^{2} là hằng số." },
+    { t: "g tỉ lệ nghịch với độ cao h so với mặt đất.", v: false, e: "g tỉ lệ nghịch với (R + h)^{2}, không phải với h." } ] },
+  { q: "Biết g_{0} = 9,81 m/s^{2}, R = 6 400 km và g_{h} = g_{0}/(1 + h/R)^{2}. Đỉnh Fansipan cao 3,1 km, đỉnh Everest cao 8,8 km.", s: [
+    { t: "Ở đỉnh Fansipan, g ≈ 9,80 m/s^{2}.", v: true, e: "g = 9,81/(1 + 3,1/6400)^{2} ≈ 9,80 m/s^{2}." },
+    { t: "Ở đỉnh Everest, g ≈ 9,78 m/s^{2}.", v: true, e: "g = 9,81/(1 + 8,8/6400)^{2} ≈ 9,78 m/s^{2}." },
+    { t: "g ở đỉnh Everest lớn hơn g ở đỉnh Fansipan.", v: false, e: "Everest cao hơn nên g nhỏ hơn." },
+    { t: "Chênh lệch g giữa hai đỉnh núi này vượt quá 1% so với g_{0}.", v: false, e: "Chênh lệch khoảng 0,02 m/s^{2}, chưa tới 0,3% của g_{0}." } ] },
+  { img: "cannon", q: "Newton bắn viên đạn đại bác theo phương ngang từ đỉnh núi cao 300 m (R = 6 400 km, M = 6·10^{24} kg).", s: [
+    { t: "Gia tốc do lực hấp dẫn của Trái Đất gây ra cho viên đạn ở đỉnh núi xấp xỉ 9,78 m/s^{2}.", v: true, e: "g = GM/(R + h)^{2} với R + h = 6 400 300 m." },
+    { t: "Với tốc độ v < 8 km/s, viên đạn chuyển động tròn quanh Trái Đất.", v: false, e: "Với v < 8 km/s viên đạn rơi xuống Trái Đất; v = 8 km/s thì chuyển động tròn." },
+    { t: "Khi viên đạn chuyển động tròn quanh Trái Đất, lực hấp dẫn đóng vai trò lực hướng tâm.", v: true, e: "Hợp lực hướng vào tâm chính là lực hấp dẫn." },
+    { t: "Khi viên đạn chuyển động tròn, lực hấp dẫn nhỏ hơn lực hướng tâm của nó.", v: false, e: "Hai lực bằng nhau vì lực hấp dẫn chính là lực hướng tâm." } ] },
+];
+const DS_PTS = [0, 0.05, 0.125, 0.25, 0.5];
+const MCQ_PTS = 0.2;
+
+// Dán URL Web App Apps Script vào giữa hai dấu nháy sau khi triển khai.
+const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzrprFU9gAiBVpW2L4kA6aVJgYplE9fZtyoIFNpYeS1QDw27vkMVuEEwjlF_yHsNJwG/exec";
+let saveState = "";
+let saveStarted = false;
+
+function sendResultToSheet() {
+  if (saveStarted) return;
+  saveStarted = true;
+  const r = scores();
+  const payload = {
+    timestamp: new Date().toISOString(),
+    fullName: who.name.trim(),
+    className: who.cls.trim(),
+    quiz: "Kiểm tra Trường hấp dẫn",
+    subject: "Vật lí 11",
+    multipleChoiceCorrect: r.m,
+    multipleChoiceScore: Number(r.mp.toFixed(3)),
+    trueFalseCorrectStatements: r.n,
+    trueFalseScore: Number(r.d.toFixed(3)),
+    totalScore: Number(r.total.toFixed(3)),
+    duration: elapsed(),
+    submissionType: st.auto === "time" ? "Tự động - hết giờ" : st.auto ? "Tự động - chuyển tab" : "Học sinh nộp",
+    autoSubmit: Boolean(st.auto)
+  };
+
+  const statusEl = document.getElementById("syncStatus");
+  if (!GOOGLE_SCRIPT_URL || GOOGLE_SCRIPT_URL.includes("DAN_URL_WEB_APP")) {
+    saveState = "Chưa cấu hình URL Apps Script nên điểm chưa được gửi.";
+    if (statusEl) statusEl.textContent = saveState;
+    return;
+  }
+
+  try {
+    // Gửi bằng form POST ẩn để tránh lỗi CORS/preflight khi trang chạy trên GitHub Pages.
+    let frame = document.getElementById("scoreSubmitFrame");
+    if (!frame) {
+      frame = document.createElement("iframe");
+      frame.name = "scoreSubmitFrame";
+      frame.id = "scoreSubmitFrame";
+      frame.style.display = "none";
+      document.body.appendChild(frame);
+    }
+    const form = document.createElement("form");
+    form.method = "POST";
+    form.action = GOOGLE_SCRIPT_URL;
+    form.target = "scoreSubmitFrame";
+    form.style.display = "none";
+    const input = document.createElement("input");
+    input.type = "hidden";
+    input.name = "payload";
+    input.value = JSON.stringify(payload);
+    form.appendChild(input);
+    document.body.appendChild(form);
+    form.submit();
+    form.remove();
+    saveState = "Đã gửi yêu cầu lưu điểm. Vui lòng kiểm tra trang Ket_qua trong Google Sheets.";
+  } catch (err) {
+    saveState = "Không gửi được điểm: " + (err && err.message ? err.message : String(err));
+  }
+  if (statusEl) statusEl.textContent = saveState;
+}
+
+const FIGS = {
+  cone: { svg: "<svg viewBox=\"0 0 480 300\" role=\"img\" aria-label=\"Người chơi ném quả còn lên qua vòng còn trên đỉnh cột\" xmlns=\"http://www.w3.org/2000/svg\" shape-rendering=\"geometricPrecision\" text-rendering=\"geometricPrecision\"><defs><linearGradient id=\"c_sky\" x1=\"0\" y1=\"0\" x2=\"0\" y2=\"1\"><stop offset=\"0\" stop-color=\"#bfe3ff\"/><stop offset=\"1\" stop-color=\"#f6fbff\"/></linearGradient><linearGradient id=\"c_gr\" x1=\"0\" y1=\"0\" x2=\"0\" y2=\"1\"><stop offset=\"0\" stop-color=\"#8fd47a\"/><stop offset=\"1\" stop-color=\"#3f9a48\"/></linearGradient><linearGradient id=\"c_pole\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"0\"><stop offset=\"0\" stop-color=\"#7a4a1f\"/><stop offset=\".45\" stop-color=\"#e3b676\"/><stop offset=\"1\" stop-color=\"#6b3f19\"/></linearGradient><linearGradient id=\"c_ring\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"0\"><stop offset=\"0\" stop-color=\"#b3141f\"/><stop offset=\".5\" stop-color=\"#ff6a5c\"/><stop offset=\"1\" stop-color=\"#9d101a\"/></linearGradient><radialGradient id=\"c_skin\" cx=\".38\" cy=\".3\" r=\".8\"><stop offset=\"0\" stop-color=\"#ffe2c4\"/><stop offset=\"1\" stop-color=\"#e3a77a\"/></radialGradient><linearGradient id=\"c_shirt\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"0\"><stop offset=\"0\" stop-color=\"#f0693f\"/><stop offset=\".5\" stop-color=\"#ff8a5c\"/><stop offset=\"1\" stop-color=\"#c94722\"/></linearGradient><radialGradient id=\"c_cn\" cx=\".36\" cy=\".30\" r=\".85\" fx=\".30\" fy=\".24\"><stop offset=\"0\" stop-color=\"#fff3a8\"/><stop offset=\".45\" stop-color=\"#ffc21a\"/><stop offset=\"1\" stop-color=\"#c77f00\"/></radialGradient><filter id=\"c_bl\" x=\"-60%\" y=\"-60%\" width=\"220%\" height=\"220%\"><feGaussianBlur stdDeviation=\"4\"/></filter></defs><rect width=\"480\" height=\"300\" rx=\"16\" fill=\"url(#c_sky)\"/><circle cx=\"420\" cy=\"52\" r=\"26\" fill=\"#ffe28a\" fill-opacity=\".85\"/><circle cx=\"420\" cy=\"52\" r=\"40\" fill=\"#ffe28a\" fill-opacity=\".25\"/><ellipse cx=\"90\" cy=\"48\" rx=\"34\" ry=\"11\" fill=\"#fff\" fill-opacity=\".85\"/><ellipse cx=\"116\" cy=\"40\" rx=\"22\" ry=\"10\" fill=\"#fff\" fill-opacity=\".85\"/><path d=\"M0 232 Q 120 214 240 228 T 480 224 L480 300 L0 300 Z\" fill=\"url(#c_gr)\"/><ellipse cx=\"372\" cy=\"246\" rx=\"30\" ry=\"6\" fill=\"#0b3a1a\" fill-opacity=\".4\" filter=\"url(#c_bl)\"/><ellipse cx=\"100\" cy=\"248\" rx=\"30\" ry=\"6\" fill=\"#0b3a1a\" fill-opacity=\".4\" filter=\"url(#c_bl)\"/><path d=\"M338 88 A34 10 0 0 1 406 88\" fill=\"none\" stroke=\"#7a0d16\" stroke-width=\"5\" stroke-linecap=\"round\"/><rect x=\"368\" y=\"90\" width=\"8\" height=\"158\" rx=\"3\" fill=\"url(#c_pole)\"/><path d=\"M338 88 A34 10 0 0 0 406 88\" fill=\"none\" stroke=\"url(#c_ring)\" stroke-width=\"5\" stroke-linecap=\"round\"/><path d=\"M96 192 L84 240\" stroke=\"#26356a\" stroke-width=\"10\" stroke-linecap=\"round\"/><path d=\"M104 192 L118 240\" stroke=\"#1d2a55\" stroke-width=\"10\" stroke-linecap=\"round\"/><ellipse cx=\"82\" cy=\"242\" rx=\"10\" ry=\"4\" fill=\"#222\"/><ellipse cx=\"121\" cy=\"242\" rx=\"10\" ry=\"4\" fill=\"#222\"/><rect x=\"87\" y=\"150\" width=\"26\" height=\"48\" rx=\"12\" fill=\"url(#c_shirt)\"/><path d=\"M92 166 L78 192\" stroke=\"#f0b48c\" stroke-width=\"8\" stroke-linecap=\"round\"/><path d=\"M108 164 L134 176\" stroke=\"#f0b48c\" stroke-width=\"8\" stroke-linecap=\"round\"/><circle cx=\"100\" cy=\"134\" r=\"14\" fill=\"url(#c_skin)\"/><path d=\"M86 132 Q 90 117 102 119 Q 113 120 114 131 Q 104 124 86 132 Z\" fill=\"#3a2a22\"/><path d=\"M138 178 Q 252 -22 366 82\" fill=\"none\" stroke=\"#1c4f9c\" stroke-width=\"2.5\" stroke-dasharray=\"3 7\" stroke-linecap=\"round\"/><path d=\"M244 52 q -16 4 -28 14\" stroke=\"#ff5a4a\" stroke-width=\"3\" fill=\"none\" stroke-linecap=\"round\"/><path d=\"M244 56 q -18 10 -26 24\" stroke=\"#ffd23a\" stroke-width=\"3\" fill=\"none\" stroke-linecap=\"round\"/><path d=\"M247 58 q -8 16 -18 28\" stroke=\"#42c47a\" stroke-width=\"3\" fill=\"none\" stroke-linecap=\"round\"/><circle cx=\"252.0\" cy=\"50.0\" r=\"11\" fill=\"url(#c_cn)\"/><ellipse cx=\"248.5\" cy=\"45.6\" rx=\"3.3\" ry=\"2.0\" fill=\"#fff\" fill-opacity=\".62\" transform=\"rotate(-30 248.5 45.6)\"/><rect x=\"368.1\" y=\"47.0\" width=\"71.8\" height=\"22\" rx=\"11.0\" fill=\"#fff\" fill-opacity=\".88\" stroke=\"#b9c7e0\"/><text x=\"404\" y=\"63\" font-family=\"Be Vietnam Pro, Segoe UI, Calibri, sans-serif\" font-size=\"12\" font-weight=\"600\" fill=\"#14203a\" text-anchor=\"middle\" >Vòng còn</text><rect x=\"219.5\" y=\"7.0\" width=\"65.0\" height=\"22\" rx=\"11.0\" fill=\"#fff\" fill-opacity=\".88\" stroke=\"#b9c7e0\"/><text x=\"252\" y=\"23\" font-family=\"Be Vietnam Pro, Segoe UI, Calibri, sans-serif\" font-size=\"12\" font-weight=\"600\" fill=\"#14203a\" text-anchor=\"middle\" >Quả còn</text><rect x=\"57.4\" y=\"257.0\" width=\"85.2\" height=\"22\" rx=\"11.0\" fill=\"#fff\" fill-opacity=\".88\" stroke=\"#b9c7e0\"/><text x=\"100\" y=\"273\" font-family=\"Be Vietnam Pro, Segoe UI, Calibri, sans-serif\" font-size=\"12\" font-weight=\"600\" fill=\"#14203a\" text-anchor=\"middle\" >Người chơi</text><rect x=\"352.9\" y=\"257.0\" width=\"38.2\" height=\"22\" rx=\"11.0\" fill=\"#fff\" fill-opacity=\".88\" stroke=\"#b9c7e0\"/><text x=\"372\" y=\"273\" font-family=\"Be Vietnam Pro, Segoe UI, Calibri, sans-serif\" font-size=\"12\" font-weight=\"600\" fill=\"#14203a\" text-anchor=\"middle\" >Cột</text></svg>", cap: "Hình minh họa: trò chơi ném còn" },
+  stone: { svg: "<svg viewBox=\"0 0 480 300\" role=\"img\" aria-label=\"Viên đá được thả rơi và viên đá được ném ngang gần mặt đất\" xmlns=\"http://www.w3.org/2000/svg\" shape-rendering=\"geometricPrecision\" text-rendering=\"geometricPrecision\"><defs><linearGradient id=\"s_sky\" x1=\"0\" y1=\"0\" x2=\"0\" y2=\"1\"><stop offset=\"0\" stop-color=\"#a9d6ff\"/><stop offset=\"1\" stop-color=\"#f3faff\"/></linearGradient><radialGradient id=\"s_gr\" cx=\".5\" cy=\".0\" r=\"1\"><stop offset=\"0\" stop-color=\"#8fdc78\"/><stop offset=\".55\" stop-color=\"#3f9a48\"/><stop offset=\"1\" stop-color=\"#1f6a34\"/></radialGradient><radialGradient id=\"s_st\" cx=\".36\" cy=\".30\" r=\".85\" fx=\".30\" fy=\".24\"><stop offset=\"0\" stop-color=\"#f2f4f7\"/><stop offset=\".45\" stop-color=\"#9aa3b2\"/><stop offset=\"1\" stop-color=\"#4a5262\"/></radialGradient><filter id=\"s_bl\" x=\"-60%\" y=\"-60%\" width=\"220%\" height=\"220%\"><feGaussianBlur stdDeviation=\"3.5\"/></filter><marker id=\"s_ah\" viewBox=\"0 0 10 10\" refX=\"8.5\" refY=\"5\" markerWidth=\"7\" markerHeight=\"7\" orient=\"auto-start-reverse\"><path d=\"M0 0L10 5L0 10z\" fill=\"#d62839\"/></marker></defs><rect width=\"480\" height=\"300\" rx=\"16\" fill=\"url(#s_sky)\"/><circle cx=\"240\" cy=\"680\" r=\"429\" fill=\"#9fdcff\" fill-opacity=\".55\"/><circle cx=\"240\" cy=\"680\" r=\"420\" fill=\"url(#s_gr)\"/><rect x=\"96\" y=\"44\" width=\"148\" height=\"6\" rx=\"3\" fill=\"#6b7790\"/><rect x=\"96\" y=\"44\" width=\"148\" height=\"3\" rx=\"1.5\" fill=\"#9fb0cf\"/><line x1=\"110\" y1=\"80\" x2=\"110\" y2=\"277.6\" stroke=\"#1c4f9c\" stroke-width=\"2.5\" stroke-dasharray=\"3 7\" stroke-linecap=\"round\"/><ellipse cx=\"110\" cy=\"281.6\" rx=\"13\" ry=\"3.5\" fill=\"#0b3a1a\" fill-opacity=\".5\" filter=\"url(#s_bl)\"/><circle cx=\"110.0\" cy=\"72.0\" r=\"10\" fill=\"url(#s_st)\"/><ellipse cx=\"106.8\" cy=\"68.0\" rx=\"3.0\" ry=\"1.8\" fill=\"#fff\" fill-opacity=\".62\" transform=\"rotate(-30 106.8 68.0)\"/><circle cx=\"110.0\" cy=\"170.0\" r=\"10\" fill=\"url(#s_st)\"/><ellipse cx=\"106.8\" cy=\"166.0\" rx=\"3.0\" ry=\"1.8\" fill=\"#fff\" fill-opacity=\".62\" transform=\"rotate(-30 106.8 166.0)\"/><path d=\"M210 72 Q 330 72 392 285.5\" fill=\"none\" stroke=\"#1c4f9c\" stroke-width=\"2.5\" stroke-dasharray=\"3 7\" stroke-linecap=\"round\"/><ellipse cx=\"392\" cy=\"289.5\" rx=\"13\" ry=\"3.5\" fill=\"#0b3a1a\" fill-opacity=\".5\" filter=\"url(#s_bl)\"/><circle cx=\"210.0\" cy=\"72.0\" r=\"10\" fill=\"url(#s_st)\"/><ellipse cx=\"206.8\" cy=\"68.0\" rx=\"3.0\" ry=\"1.8\" fill=\"#fff\" fill-opacity=\".62\" transform=\"rotate(-30 206.8 68.0)\"/><circle cx=\"315.5\" cy=\"126.1\" r=\"10\" fill=\"url(#s_st)\"/><ellipse cx=\"312.3\" cy=\"122.1\" rx=\"3.0\" ry=\"1.8\" fill=\"#fff\" fill-opacity=\".62\" transform=\"rotate(-30 312.3 122.1)\"/><line x1=\"223\" y1=\"72\" x2=\"288\" y2=\"72\" stroke=\"#d62839\" stroke-width=\"3.2\" stroke-linecap=\"round\" marker-end=\"url(#s_ah)\"/><text x=\"260\" y=\"63\" font-family=\"Be Vietnam Pro, Segoe UI, Calibri, sans-serif\" font-size=\"15\" font-weight=\"700\" fill=\"#d62839\" text-anchor=\"middle\" font-style=\"italic\">v</text><rect x=\"42.9\" y=\"163.0\" width=\"38.2\" height=\"22\" rx=\"11.0\" fill=\"#fff\" fill-opacity=\".88\" stroke=\"#b9c7e0\"/><text x=\"62\" y=\"179\" font-family=\"Be Vietnam Pro, Segoe UI, Calibri, sans-serif\" font-size=\"12\" font-weight=\"600\" fill=\"#14203a\" text-anchor=\"middle\" >Thả</text><rect x=\"295.8\" y=\"137.0\" width=\"78.5\" height=\"22\" rx=\"11.0\" fill=\"#fff\" fill-opacity=\".88\" stroke=\"#b9c7e0\"/><text x=\"335\" y=\"153\" font-family=\"Be Vietnam Pro, Segoe UI, Calibri, sans-serif\" font-size=\"12\" font-weight=\"600\" fill=\"#14203a\" text-anchor=\"middle\" >Ném ngang</text><rect x=\"170.5\" y=\"275.0\" width=\"139.0\" height=\"22\" rx=\"11.0\" fill=\"#fff\" fill-opacity=\".88\" stroke=\"#b9c7e0\"/><text x=\"240\" y=\"291\" font-family=\"Be Vietnam Pro, Segoe UI, Calibri, sans-serif\" font-size=\"12\" font-weight=\"600\" fill=\"#14203a\" text-anchor=\"middle\" >Mặt đất (Trái Đất)</text></svg>", cap: "Hình 1.2: viên đá được thả và được ném ngang ở gần mặt đất" },
+  ball: { svg: "<svg viewBox=\"0 0 480 300\" role=\"img\" aria-label=\"Quả bóng đặt ở nhiều vị trí khác nhau trên mặt Trái Đất\" xmlns=\"http://www.w3.org/2000/svg\" shape-rendering=\"geometricPrecision\" text-rendering=\"geometricPrecision\"><defs><radialGradient id=\"b_bg\" cx=\".5\" cy=\".5\" r=\".75\"><stop offset=\"0\" stop-color=\"#14285a\"/><stop offset=\"1\" stop-color=\"#050a1c\"/></radialGradient><radialGradient id=\"b_bl\" cx=\".36\" cy=\".30\" r=\".85\" fx=\".30\" fy=\".24\"><stop offset=\"0\" stop-color=\"#ffe1a0\"/><stop offset=\".45\" stop-color=\"#ff9a2a\"/><stop offset=\"1\" stop-color=\"#a84d00\"/></radialGradient><filter id=\"b_bs\" x=\"-60%\" y=\"-60%\" width=\"220%\" height=\"220%\"><feGaussianBlur stdDeviation=\"3\"/></filter></defs><rect width=\"480\" height=\"300\" rx=\"16\" fill=\"url(#b_bg)\"/><circle cx=\"173\" cy=\"85\" r=\"1\" fill=\"#fff\" fill-opacity=\"0.95\"/><circle cx=\"32\" cy=\"45\" r=\"1.4\" fill=\"#fff\" fill-opacity=\"0.5\"/><circle cx=\"195\" cy=\"37\" r=\"1.4\" fill=\"#fff\" fill-opacity=\"0.5\"/><circle cx=\"27\" cy=\"52\" r=\"1\" fill=\"#fff\" fill-opacity=\"0.7\"/><circle cx=\"43\" cy=\"131\" r=\"0.8\" fill=\"#fff\" fill-opacity=\"0.95\"/><circle cx=\"225\" cy=\"38\" r=\"1.4\" fill=\"#fff\" fill-opacity=\"0.5\"/><circle cx=\"122\" cy=\"39\" r=\"1.4\" fill=\"#fff\" fill-opacity=\"0.95\"/><circle cx=\"211\" cy=\"33\" r=\"0.8\" fill=\"#fff\" fill-opacity=\"0.5\"/><circle cx=\"293\" cy=\"76\" r=\"1\" fill=\"#fff\" fill-opacity=\"0.7\"/><circle cx=\"81\" cy=\"284\" r=\"0.8\" fill=\"#fff\" fill-opacity=\"0.95\"/><circle cx=\"165\" cy=\"100\" r=\"0.8\" fill=\"#fff\" fill-opacity=\"0.95\"/><circle cx=\"300\" cy=\"104\" r=\"1\" fill=\"#fff\" fill-opacity=\"0.5\"/><circle cx=\"288\" cy=\"40\" r=\"1.4\" fill=\"#fff\" fill-opacity=\"0.5\"/><circle cx=\"324\" cy=\"113\" r=\"1\" fill=\"#fff\" fill-opacity=\"0.95\"/><circle cx=\"280\" cy=\"226\" r=\"1\" fill=\"#fff\" fill-opacity=\"0.7\"/><circle cx=\"307\" cy=\"240\" r=\"1\" fill=\"#fff\" fill-opacity=\"0.7\"/><circle cx=\"135\" cy=\"100\" r=\"1.4\" fill=\"#fff\" fill-opacity=\"0.5\"/><circle cx=\"49\" cy=\"161\" r=\"1.4\" fill=\"#fff\" fill-opacity=\"0.7\"/><circle cx=\"456\" cy=\"183\" r=\"1.4\" fill=\"#fff\" fill-opacity=\"0.7\"/><circle cx=\"155\" cy=\"45\" r=\"0.8\" fill=\"#fff\" fill-opacity=\"0.95\"/><circle cx=\"222\" cy=\"92\" r=\"1\" fill=\"#fff\" fill-opacity=\"0.5\"/><circle cx=\"258\" cy=\"223\" r=\"0.8\" fill=\"#fff\" fill-opacity=\"0.95\"/><circle cx=\"47\" cy=\"168\" r=\"1\" fill=\"#fff\" fill-opacity=\"0.95\"/><circle cx=\"187\" cy=\"262\" r=\"1.4\" fill=\"#fff\" fill-opacity=\"0.7\"/><circle cx=\"43\" cy=\"55\" r=\"1\" fill=\"#fff\" fill-opacity=\"0.7\"/><circle cx=\"364\" cy=\"41\" r=\"0.8\" fill=\"#fff\" fill-opacity=\"0.95\"/><circle cx=\"367\" cy=\"166\" r=\"1.4\" fill=\"#fff\" fill-opacity=\"0.95\"/><circle cx=\"356\" cy=\"236\" r=\"1\" fill=\"#fff\" fill-opacity=\"0.95\"/><circle cx=\"205\" cy=\"185\" r=\"0.8\" fill=\"#fff\" fill-opacity=\"0.7\"/><circle cx=\"189\" cy=\"94\" r=\"1.4\" fill=\"#fff\" fill-opacity=\"0.5\"/><circle cx=\"260\" cy=\"38\" r=\"0.8\" fill=\"#fff\" fill-opacity=\"0.7\"/><circle cx=\"74\" cy=\"134\" r=\"1\" fill=\"#fff\" fill-opacity=\"0.7\"/><circle cx=\"454\" cy=\"262\" r=\"0.8\" fill=\"#fff\" fill-opacity=\"0.5\"/><circle cx=\"237\" cy=\"213\" r=\"1.4\" fill=\"#fff\" fill-opacity=\"0.7\"/><circle cx=\"460\" cy=\"78\" r=\"1\" fill=\"#fff\" fill-opacity=\"0.95\"/><circle cx=\"150\" cy=\"220\" r=\"1\" fill=\"#fff\" fill-opacity=\"0.95\"/><circle cx=\"460\" cy=\"202\" r=\"0.8\" fill=\"#fff\" fill-opacity=\"0.5\"/><circle cx=\"50\" cy=\"98\" r=\"0.8\" fill=\"#fff\" fill-opacity=\"0.5\"/><circle cx=\"345\" cy=\"127\" r=\"0.8\" fill=\"#fff\" fill-opacity=\"0.7\"/><circle cx=\"433\" cy=\"101\" r=\"1\" fill=\"#fff\" fill-opacity=\"0.7\"/><circle cx=\"10\" cy=\"82\" r=\"1\" fill=\"#fff\" fill-opacity=\"0.95\"/><circle cx=\"197\" cy=\"171\" r=\"0.8\" fill=\"#fff\" fill-opacity=\"0.95\"/><circle cx=\"447\" cy=\"271\" r=\"1.4\" fill=\"#fff\" fill-opacity=\"0.95\"/><circle cx=\"354\" cy=\"35\" r=\"1\" fill=\"#fff\" fill-opacity=\"0.95\"/><circle cx=\"416\" cy=\"208\" r=\"1\" fill=\"#fff\" fill-opacity=\"0.7\"/><circle cx=\"209\" cy=\"61\" r=\"1\" fill=\"#fff\" fill-opacity=\"0.95\"/><circle cx=\"213\" cy=\"39\" r=\"0.8\" fill=\"#fff\" fill-opacity=\"0.5\"/><circle cx=\"114\" cy=\"233\" r=\"0.8\" fill=\"#fff\" fill-opacity=\"0.5\"/><circle cx=\"182\" cy=\"34\" r=\"0.8\" fill=\"#fff\" fill-opacity=\"0.5\"/><circle cx=\"298\" cy=\"85\" r=\"1.4\" fill=\"#fff\" fill-opacity=\"0.5\"/><circle cx=\"194\" cy=\"21\" r=\"0.8\" fill=\"#fff\" fill-opacity=\"0.5\"/><circle cx=\"322\" cy=\"200\" r=\"0.8\" fill=\"#fff\" fill-opacity=\"0.95\"/><circle cx=\"137\" cy=\"185\" r=\"1.4\" fill=\"#fff\" fill-opacity=\"0.7\"/><circle cx=\"250\" cy=\"70\" r=\"0.8\" fill=\"#fff\" fill-opacity=\"0.7\"/><circle cx=\"246\" cy=\"253\" r=\"1\" fill=\"#fff\" fill-opacity=\"0.7\"/><circle cx=\"51\" cy=\"81\" r=\"0.8\" fill=\"#fff\" fill-opacity=\"0.95\"/><circle cx=\"183\" cy=\"143\" r=\"1\" fill=\"#fff\" fill-opacity=\"0.95\"/><circle cx=\"90\" cy=\"272\" r=\"0.8\" fill=\"#fff\" fill-opacity=\"0.5\"/><circle cx=\"278\" cy=\"193\" r=\"0.8\" fill=\"#fff\" fill-opacity=\"0.95\"/><circle cx=\"286\" cy=\"21\" r=\"1.4\" fill=\"#fff\" fill-opacity=\"0.7\"/><defs><radialGradient id=\"b_oc\" cx=\".38\" cy=\".32\" r=\".9\"><stop offset=\"0\" stop-color=\"#8fdcff\"/><stop offset=\".5\" stop-color=\"#2a86dc\"/><stop offset=\"1\" stop-color=\"#0b3d8a\"/></radialGradient><linearGradient id=\"b_ld\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"#7fd06a\"/><stop offset=\"1\" stop-color=\"#2f8f4e\"/></linearGradient><radialGradient id=\"b_sh\" cx=\".34\" cy=\".28\" r=\".95\"><stop offset=\"0\" stop-color=\"#fff\" stop-opacity=\".38\"/><stop offset=\".42\" stop-color=\"#fff\" stop-opacity=\"0\"/><stop offset=\".78\" stop-color=\"#001040\" stop-opacity=\".28\"/><stop offset=\"1\" stop-color=\"#000a30\" stop-opacity=\".68\"/></radialGradient><radialGradient id=\"b_at\" cx=\".5\" cy=\".5\" r=\".5\"><stop offset=\".80\" stop-color=\"#7cc8ff\" stop-opacity=\"0\"/><stop offset=\".90\" stop-color=\"#7cc8ff\" stop-opacity=\".55\"/><stop offset=\"1\" stop-color=\"#7cc8ff\" stop-opacity=\"0\"/></radialGradient><clipPath id=\"b_cl\"><circle cx=\"240\" cy=\"150\" r=\"90\"/></clipPath></defs><circle cx=\"240\" cy=\"150\" r=\"104.4\" fill=\"url(#b_at)\"/><circle cx=\"240\" cy=\"150\" r=\"90\" fill=\"url(#b_oc)\"/><g clip-path=\"url(#b_cl)\" transform=\"translate(240 150) scale(90)\" fill=\"url(#b_ld)\" fill-opacity=\".95\"><path d=\"M-0.72,-0.18 C-0.62,-0.62 -0.2,-0.74 0.02,-0.52 C0.14,-0.36 -0.08,-0.22 -0.2,-0.1 C-0.3,0.1 -0.5,0.22 -0.62,0.1 Z\"/><path d=\"M0.22,-0.12 C0.5,-0.34 0.82,-0.12 0.76,0.2 C0.7,0.5 0.42,0.72 0.3,0.52 C0.2,0.32 0.1,0.1 0.22,-0.12 Z\"/><path d=\"M-0.5,0.46 C-0.3,0.34 -0.08,0.5 -0.14,0.72 C-0.3,0.88 -0.52,0.76 -0.5,0.46 Z\"/><path d=\"M0.0,-0.9 C0.3,-0.86 0.5,-0.74 0.4,-0.62 C0.2,-0.58 -0.1,-0.7 0.0,-0.9 Z\" fill=\"#f4fbff\"/></g><circle cx=\"240\" cy=\"150\" r=\"90\" fill=\"url(#b_sh)\"/><circle cx=\"240.0\" cy=\"49.0\" r=\"11\" fill=\"url(#b_bl)\"/><ellipse cx=\"236.5\" cy=\"44.6\" rx=\"3.3\" ry=\"2.0\" fill=\"#fff\" fill-opacity=\".62\" transform=\"rotate(-30 236.5 44.6)\"/><circle cx=\"333.6\" cy=\"112.2\" r=\"11\" fill=\"url(#b_bl)\"/><ellipse cx=\"330.1\" cy=\"107.8\" rx=\"3.3\" ry=\"2.0\" fill=\"#fff\" fill-opacity=\".62\" transform=\"rotate(-30 330.1 107.8)\"/><circle cx=\"315.1\" cy=\"217.6\" r=\"11\" fill=\"url(#b_bl)\"/><ellipse cx=\"311.6\" cy=\"213.2\" rx=\"3.3\" ry=\"2.0\" fill=\"#fff\" fill-opacity=\".62\" transform=\"rotate(-30 311.6 213.2)\"/><circle cx=\"192.6\" cy=\"239.2\" r=\"11\" fill=\"url(#b_bl)\"/><ellipse cx=\"189.1\" cy=\"234.8\" rx=\"3.3\" ry=\"2.0\" fill=\"#fff\" fill-opacity=\".62\" transform=\"rotate(-30 189.1 234.8)\"/><circle cx=\"146.4\" cy=\"112.2\" r=\"11\" fill=\"url(#b_bl)\"/><ellipse cx=\"142.9\" cy=\"107.8\" rx=\"3.3\" ry=\"2.0\" fill=\"#fff\" fill-opacity=\".62\" transform=\"rotate(-30 142.9 107.8)\"/><circle cx=\"240\" cy=\"150\" r=\"3.2\" fill=\"#fff\" stroke=\"#0a2a5a\"/><text x=\"249\" y=\"145\" font-family=\"Be Vietnam Pro, Segoe UI, Calibri, sans-serif\" font-size=\"14\" font-weight=\"700\" fill=\"#fff\" text-anchor=\"start\" stroke=\"#0a2a5a\" stroke-width=\"3\" paint-order=\"stroke\">O</text><text x=\"240\" y=\"180\" font-family=\"Be Vietnam Pro, Segoe UI, Calibri, sans-serif\" font-size=\"14\" font-weight=\"700\" fill=\"#fff\" text-anchor=\"middle\" stroke=\"#0a2a5a\" stroke-width=\"3.5\" paint-order=\"stroke\">Trái Đất</text></svg>", cap: "Hình minh họa: quả bóng đặt ở các vị trí khác nhau trên mặt Trái Đất" },
+  spheres: { svg: "<svg viewBox=\"0 0 480 240\" role=\"img\" aria-label=\"Hai quả cầu đồng chất, mỗi quả 3 kg, bán kính 10 cm, tâm cách nhau 80 cm\" xmlns=\"http://www.w3.org/2000/svg\" shape-rendering=\"geometricPrecision\" text-rendering=\"geometricPrecision\"><defs><linearGradient id=\"p_bg\" x1=\"0\" y1=\"0\" x2=\"0\" y2=\"1\"><stop offset=\"0\" stop-color=\"#f3f8ff\"/><stop offset=\"1\" stop-color=\"#d9e6fb\"/></linearGradient><linearGradient id=\"p_fl\" x1=\"0\" y1=\"0\" x2=\"0\" y2=\"1\"><stop offset=\"0\" stop-color=\"#c9d8f2\"/><stop offset=\"1\" stop-color=\"#eef3fc\"/></linearGradient><radialGradient id=\"p_sp\" cx=\".36\" cy=\".30\" r=\".85\" fx=\".30\" fy=\".24\"><stop offset=\"0\" stop-color=\"#e3f2ff\"/><stop offset=\".45\" stop-color=\"#4f95e0\"/><stop offset=\"1\" stop-color=\"#17407f\"/></radialGradient><filter id=\"p_bl\" x=\"-60%\" y=\"-60%\" width=\"220%\" height=\"220%\"><feGaussianBlur stdDeviation=\"5\"/></filter><marker id=\"p_ah\" viewBox=\"0 0 10 10\" refX=\"8.5\" refY=\"5\" markerWidth=\"7\" markerHeight=\"7\" orient=\"auto-start-reverse\"><path d=\"M0 0L10 5L0 10z\" fill=\"#14203a\"/></marker></defs><rect width=\"480\" height=\"240\" rx=\"16\" fill=\"url(#p_bg)\"/><path d=\"M0 150 L480 150 L480 240 L0 240 Z\" fill=\"url(#p_fl)\"/><line x1=\"0\" y1=\"150\" x2=\"480\" y2=\"150\" stroke=\"#b6c6e6\"/><ellipse cx=\"116\" cy=\"156\" rx=\"40\" ry=\"8\" fill=\"#13244a\" fill-opacity=\".45\" filter=\"url(#p_bl)\"/><circle cx=\"110.0\" cy=\"108.0\" r=\"40\" fill=\"url(#p_sp)\"/><ellipse cx=\"97.2\" cy=\"92.0\" rx=\"12.0\" ry=\"7.2\" fill=\"#fff\" fill-opacity=\".62\" transform=\"rotate(-30 97.2 92.0)\"/><ellipse cx=\"376\" cy=\"156\" rx=\"40\" ry=\"8\" fill=\"#13244a\" fill-opacity=\".45\" filter=\"url(#p_bl)\"/><circle cx=\"370.0\" cy=\"108.0\" r=\"40\" fill=\"url(#p_sp)\"/><ellipse cx=\"357.2\" cy=\"92.0\" rx=\"12.0\" ry=\"7.2\" fill=\"#fff\" fill-opacity=\".62\" transform=\"rotate(-30 357.2 92.0)\"/><line x1=\"110\" y1=\"108\" x2=\"150\" y2=\"108\" stroke=\"#fff\" stroke-width=\"2.4\"/><line x1=\"370\" y1=\"108\" x2=\"330\" y2=\"108\" stroke=\"#fff\" stroke-width=\"2.4\"/><text x=\"130\" y=\"100\" font-family=\"Be Vietnam Pro, Segoe UI, Calibri, sans-serif\" font-size=\"12\" font-weight=\"700\" fill=\"#fff\" text-anchor=\"middle\" stroke=\"#17407f\" stroke-width=\"3\" paint-order=\"stroke\">10 cm</text><text x=\"350\" y=\"100\" font-family=\"Be Vietnam Pro, Segoe UI, Calibri, sans-serif\" font-size=\"12\" font-weight=\"700\" fill=\"#fff\" text-anchor=\"middle\" stroke=\"#17407f\" stroke-width=\"3\" paint-order=\"stroke\">10 cm</text><circle cx=\"110\" cy=\"108\" r=\"3.6\" fill=\"#fff\" stroke=\"#14203a\" stroke-width=\"1.6\"/><line x1=\"110\" y1=\"112\" x2=\"110\" y2=\"212\" stroke=\"#14203a\" stroke-width=\"1.4\" stroke-dasharray=\"4 4\" stroke-opacity=\".7\"/><circle cx=\"370\" cy=\"108\" r=\"3.6\" fill=\"#fff\" stroke=\"#14203a\" stroke-width=\"1.6\"/><line x1=\"370\" y1=\"112\" x2=\"370\" y2=\"212\" stroke=\"#14203a\" stroke-width=\"1.4\" stroke-dasharray=\"4 4\" stroke-opacity=\".7\"/><rect x=\"86.4\" y=\"26.0\" width=\"47.1\" height=\"23\" rx=\"11.5\" fill=\"#fff\" fill-opacity=\".88\" stroke=\"#b9c7e0\"/><text x=\"110\" y=\"43\" font-family=\"Be Vietnam Pro, Segoe UI, Calibri, sans-serif\" font-size=\"13\" font-weight=\"600\" fill=\"#14203a\" text-anchor=\"middle\" >3 kg</text><rect x=\"346.4\" y=\"26.0\" width=\"47.1\" height=\"23\" rx=\"11.5\" fill=\"#fff\" fill-opacity=\".88\" stroke=\"#b9c7e0\"/><text x=\"370\" y=\"43\" font-family=\"Be Vietnam Pro, Segoe UI, Calibri, sans-serif\" font-size=\"13\" font-weight=\"600\" fill=\"#14203a\" text-anchor=\"middle\" >3 kg</text><line x1=\"110\" y1=\"208\" x2=\"370\" y2=\"208\" stroke=\"#14203a\" stroke-width=\"2\" marker-start=\"url(#p_ah)\" marker-end=\"url(#p_ah)\"/><rect x=\"163.8\" y=\"185.0\" width=\"152.4\" height=\"22\" rx=\"11.0\" fill=\"#fff\" fill-opacity=\".88\" stroke=\"#b9c7e0\"/><text x=\"240\" y=\"201\" font-family=\"Be Vietnam Pro, Segoe UI, Calibri, sans-serif\" font-size=\"12\" font-weight=\"600\" fill=\"#14203a\" text-anchor=\"middle\" >80 cm (giữa hai tâm)</text></svg>", cap: "Hình minh họa: hai quả cầu đồng chất (không đúng tỉ lệ)" },
+  cannon: { svg: "<svg viewBox=\"0 0 480 300\" role=\"img\" aria-label=\"Đại bác đặt trên đỉnh núi cao 300 m bắn viên đạn theo phương ngang\" xmlns=\"http://www.w3.org/2000/svg\" shape-rendering=\"geometricPrecision\" text-rendering=\"geometricPrecision\"><defs><linearGradient id=\"n_sky\" x1=\"0\" y1=\"0\" x2=\"0\" y2=\"1\"><stop offset=\"0\" stop-color=\"#8ec9ff\"/><stop offset=\"1\" stop-color=\"#f1f9ff\"/></linearGradient><radialGradient id=\"n_gr\" cx=\".5\" cy=\"0\" r=\"1\"><stop offset=\"0\" stop-color=\"#86d674\"/><stop offset=\".6\" stop-color=\"#3d9a47\"/><stop offset=\"1\" stop-color=\"#1d6633\"/></radialGradient><linearGradient id=\"n_mL\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"#b9a58f\"/><stop offset=\"1\" stop-color=\"#8d7862\"/></linearGradient><linearGradient id=\"n_mD\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"#6e5c4a\"/><stop offset=\"1\" stop-color=\"#3f3226\"/></linearGradient><linearGradient id=\"n_mt\" x1=\"0\" y1=\"0\" x2=\"0\" y2=\"1\"><stop offset=\"0\" stop-color=\"#d9dde5\"/><stop offset=\".5\" stop-color=\"#6c7482\"/><stop offset=\"1\" stop-color=\"#2b303a\"/></linearGradient><radialGradient id=\"n_bl\" cx=\".36\" cy=\".30\" r=\".85\" fx=\".30\" fy=\".24\"><stop offset=\"0\" stop-color=\"#7a8190\"/><stop offset=\".45\" stop-color=\"#2b303a\"/><stop offset=\"1\" stop-color=\"#0a0c10\"/></radialGradient><filter id=\"n_bs\" x=\"-60%\" y=\"-60%\" width=\"220%\" height=\"220%\"><feGaussianBlur stdDeviation=\"4\"/></filter><marker id=\"n_ah\" viewBox=\"0 0 10 10\" refX=\"8.5\" refY=\"5\" markerWidth=\"7\" markerHeight=\"7\" orient=\"auto-start-reverse\"><path d=\"M0 0L10 5L0 10z\" fill=\"#d62839\"/></marker><marker id=\"n_dm\" viewBox=\"0 0 10 10\" refX=\"8.5\" refY=\"5\" markerWidth=\"7\" markerHeight=\"7\" orient=\"auto-start-reverse\"><path d=\"M0 0L10 5L0 10z\" fill=\"#14203a\"/></marker></defs><rect width=\"480\" height=\"300\" rx=\"16\" fill=\"url(#n_sky)\"/><circle cx=\"240\" cy=\"640\" r=\"409\" fill=\"#9fdcff\" fill-opacity=\".6\"/><circle cx=\"240\" cy=\"640\" r=\"400\" fill=\"url(#n_gr)\"/><ellipse cx=\"205\" cy=\"243.5\" rx=\"78\" ry=\"8\" fill=\"#0b2a14\" fill-opacity=\".45\" filter=\"url(#n_bs)\"/><polygon points=\"95,267.2 180,100 192,246.9\" fill=\"url(#n_mL)\"/><polygon points=\"180,100 268,241.0 192,246.9\" fill=\"url(#n_mD)\"/><polygon points=\"180,100 168,128 186,122 192,132 200,124 194,138\" fill=\"#fff\" fill-opacity=\".92\"/><g transform=\"translate(180 97) rotate(-7)\"><rect x=\"-8\" y=\"-9\" width=\"52\" height=\"15\" rx=\"7\" fill=\"url(#n_mt)\"/><rect x=\"38\" y=\"-11\" width=\"8\" height=\"19\" rx=\"3\" fill=\"#4b5262\"/><circle cx=\"0\" cy=\"6\" r=\"9\" fill=\"#6b4423\" stroke=\"#3b250f\" stroke-width=\"2\"/><circle cx=\"0\" cy=\"6\" r=\"2.6\" fill=\"#d9b98a\"/></g><path d=\"M232 92 Q 350 82 430 284.0\" fill=\"none\" stroke=\"#1c4f9c\" stroke-width=\"2.5\" stroke-dasharray=\"3 7\" stroke-linecap=\"round\"/><circle cx=\"232.0\" cy=\"92.0\" r=\"7\" fill=\"url(#n_bl)\"/><ellipse cx=\"229.8\" cy=\"89.2\" rx=\"2.1\" ry=\"1.3\" fill=\"#fff\" fill-opacity=\".62\" transform=\"rotate(-30 229.8 89.2)\"/><line x1=\"244\" y1=\"92\" x2=\"312\" y2=\"92\" stroke=\"#d62839\" stroke-width=\"3.2\" stroke-linecap=\"round\" marker-end=\"url(#n_ah)\"/><text x=\"278\" y=\"83\" font-family=\"Be Vietnam Pro, Segoe UI, Calibri, sans-serif\" font-size=\"15\" font-weight=\"700\" fill=\"#d62839\" text-anchor=\"middle\" font-style=\"italic\">v</text><line x1=\"44\" y1=\"100\" x2=\"176\" y2=\"100\" stroke=\"#14203a\" stroke-width=\"1.4\" stroke-dasharray=\"4 4\"/><line x1=\"44\" y1=\"267.2\" x2=\"92\" y2=\"267.2\" stroke=\"#14203a\" stroke-width=\"1.4\" stroke-dasharray=\"4 4\"/><line x1=\"52\" y1=\"100\" x2=\"52\" y2=\"267.2\" stroke=\"#14203a\" stroke-width=\"2\" marker-start=\"url(#n_dm)\" marker-end=\"url(#n_dm)\"/><rect x=\"12.8\" y=\"174.6\" width=\"78.5\" height=\"22\" rx=\"11.0\" fill=\"#fff\" fill-opacity=\".88\" stroke=\"#b9c7e0\"/><text x=\"52\" y=\"190.6032457364131\" font-family=\"Be Vietnam Pro, Segoe UI, Calibri, sans-serif\" font-size=\"12\" font-weight=\"600\" fill=\"#14203a\" text-anchor=\"middle\" >h = 300 m</text><text x=\"240\" y=\"292\" font-family=\"Be Vietnam Pro, Segoe UI, Calibri, sans-serif\" font-size=\"13\" font-weight=\"700\" fill=\"#fff\" text-anchor=\"middle\" stroke=\"#12472a\" stroke-width=\"3.5\" paint-order=\"stroke\">Trái Đất (R = 6 400 km)</text></svg>", cap: "Hình minh họa: đại bác của Newton trên đỉnh núi (không đúng tỉ lệ)" }
+};
+const fig = (k) => (k && FIGS[k] ? `<figure class="fig">${FIGS[k].svg}<figcaption>${FIGS[k].cap}</figcaption></figure>` : "");
+
+/* ---------- tiện ích ---------- */
+const $ = (s) => document.querySelector(s);
+const app = $("#app");
+const esc = (s) => s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+const fm = (s) => esc(s).replace(/\^\{([^}]*)\}/g, "<sup>$1</sup>").replace(/_\{([^}]*)\}/g, "<sub>$1</sub>");
+const fmt = (x) => Number((Math.round(x * 1000) / 1000).toFixed(3)).toString().replace(".", ",");
+function shuffle(n) { const a = Array.from({ length: n }, (_, i) => i); for (let i = n - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; }
+
+/* ---------- trạng thái ---------- */
+let st = null;
+const who = { name: "", cls: "" };
+const TOTAL = MCQ.length + DS.length;
+function fresh() {
+  return { cur: 0, ordM: shuffle(MCQ.length), ordD: shuffle(DS.length), mcq: Array(MCQ.length).fill(null), ds: DS.map(() => [null, null, null, null]), perm: MCQ.map((q) => shuffle(q.o.length)), done: false, auto: false, ask: false, t0: Date.now(), tEnd: 0 };
+}
+const real = (p) => (p < MCQ.length ? st.ordM[p] : MCQ.length + st.ordD[p - MCQ.length]);
+function dsRight(j) { return DS[j].s.reduce((n, x, k) => n + (st.ds[j][k] === x.v ? 1 : 0), 0); }
+function scores() {
+  let m = 0; MCQ.forEach((q, i) => { if (st.mcq[i] === q.a) m++; });
+  let d = 0, n = 0; DS.forEach((_, j) => { const r = dsRight(j); d += DS_PTS[r]; n += r; });
+  return { m, mp: m * MCQ_PTS, d, n, total: m * MCQ_PTS + d };
+}
+function answered(p) { const r = real(p); return r < MCQ.length ? st.mcq[r] !== null : st.ds[r - MCQ.length].every((v) => v !== null); }
+const LIMIT = 35 * 60;
+const left = () => Math.max(0, LIMIT - Math.floor((Date.now() - st.t0) / 1000));
+const mmss = (s) => String(Math.floor(s / 60)).padStart(2, "0") + ":" + String(s % 60).padStart(2, "0");
+const elapsed = () => { const s = Math.floor(((st.done ? st.tEnd : Date.now()) - st.t0) / 1000); return String(Math.floor(s / 60)).padStart(2, "0") + ":" + String(s % 60).padStart(2, "0"); };
+
+/* ---------- giao diện ---------- */
+function startView() {
+  return `<div class="start">
+    <div><h1>Bài kiểm tra Trường hấp dẫn</h1><p class="sub">Vật lí 11 · Chuyên đề 1 · 35 câu · 35 phút · thang 10 điểm</p></div>
+    <div class="card" style="display:grid;gap:14px">
+      <table class="sc num">
+        <thead><tr><th>Phần</th><th>Số câu</th><th>Cách tính điểm</th><th>Tổng</th></tr></thead>
+        <tbody>
+          <tr><td>I. Trắc nghiệm khách quan</td><td>25</td><td>0,2 điểm mỗi câu</td><td>5 điểm</td></tr>
+          <tr><td>II. Đúng sai (mỗi câu 4 ý)</td><td>10</td><td>Lũy tiến: đúng 1 ý được 0,05; 2 ý được 0,125; 3 ý được 0,25; 4 ý được 0,5 điểm</td><td>5 điểm</td></tr>
+        </tbody>
+      </table>
+      <div class="explain" style="margin:0"><b>Lưu ý trước khi làm bài</b>Thời gian làm bài tối đa 35 phút, hết giờ bài được nộp tự động. Thứ tự câu hỏi được xáo trộn. Em có thể đổi đáp án trước khi nộp. Nếu chuyển sang tab hoặc cửa sổ khác, bài sẽ được nộp ngay. Sau khi nộp chỉ hiện điểm, không hiện đáp án.</div>
+      <div class="who"><label>Họ và tên<input id="fname" type="text" autocomplete="off" maxlength="60" value="${esc(who.name)}"></label><label>Lớp<input id="fclass" type="text" autocomplete="off" maxlength="20" value="${esc(who.cls)}"></label></div>
+      <div class="row"><button class="btn" id="go" data-act="start" ${who.name.trim() && who.cls.trim() ? "" : "disabled"}>Bắt đầu làm bài</button><span class="sub">Nhập họ tên và lớp để bắt đầu.</span></div>
+    </div>
+  </div>`;
+}
+
+function qCard(p) {
+  const r = real(p);
+  if (r < MCQ.length) {
+    const q = MCQ[r], sel = st.mcq[r];
+    const opts = st.perm[r].map((oi, pos) => `<button class="opt ${oi === sel ? "sel" : ""}" data-act="pick" data-i="${r}" data-o="${oi}"><i>${"ABCD"[pos]}</i><span>${fm(q.o[oi])}</span></button>`).join("");
+    return `<div class="qhead"><span class="chip">Phần I · Câu ${p + 1}</span><span class="pts">0,2 điểm</span></div><p class="stem">${fm(q.q)}</p>${fig(q.img)}<div class="opts">${opts}</div>`;
+  }
+  const j = r - MCQ.length, d = DS[j];
+  const rows = d.s.map((x, k) => {
+    const v = st.ds[j][k];
+    const bt = [true, false].map((b) => `<button class="${v === b ? "sel" : ""}" data-act="tf" data-j="${j}" data-k="${k}" data-v="${b}">${b ? "Đúng" : "Sai"}</button>`).join("");
+    return `<div class="stm"><p><span class="lab">${"abcd"[k]})</span>${fm(x.t)}</p><div class="tf" role="group" aria-label="Ý ${"abcd"[k]}">${bt}</div></div>`;
+  }).join("");
+  return `<div class="qhead"><span class="chip">Phần II · Câu ${p - MCQ.length + 1} · Đúng sai</span><span class="pts">tối đa 0,5 điểm</span></div><p class="stem">${fm(d.q)}</p>${fig(d.img)}<div class="opts">${rows}</div>`;
+}
+
+function navHtml() {
+  const mk = (p, lab) => `<button class="nb ${answered(p) ? "done" : ""} ${p === st.cur ? "cur" : ""}" data-act="go" data-i="${p}" aria-label="Câu ${lab}">${lab}</button>`;
+  return `<aside class="nav"><div class="card"><p class="grp">Phần I · Trắc nghiệm</p><div class="grid">${MCQ.map((_, p) => mk(p, p + 1)).join("")}</div></div>
+    <div class="card"><p class="grp">Phần II · Đúng sai</p><div class="grid">${DS.map((_, j) => mk(MCQ.length + j, j + 1)).join("")}</div></div></aside>`;
+}
+
+function quizView() {
+  const todo = Array.from({ length: TOTAL }, (_, p) => answered(p)).filter((x) => !x).length;
+  const ask = st.ask ? `<div class="card" style="border-color:var(--key)"><p style="margin:0 0 10px"><b>Nộp bài?</b> ${todo ? `Em còn ${todo} câu chưa làm xong.` : "Em đã làm hết các câu."} Sau khi nộp không thể sửa.</p><div class="row"><button class="btn" data-act="submit">Nộp bài</button><button class="btn ghost" data-act="cancel">Làm tiếp</button></div></div>` : "";
+  return `<div class="bar"><div><h1>Bài kiểm tra Trường hấp dẫn</h1><p class="sub">Vật lí 11 · ${esc(who.name.trim())} · Lớp ${esc(who.cls.trim())}</p></div>
+      <div class="row"><span class="pill ${left() <= 300 ? "low" : ""}" id="clock">Còn ${mmss(left())}</span><span class="pill">Đã làm ${TOTAL - todo}/${TOTAL}</span><button class="btn" data-act="finish">Nộp bài</button></div></div>${ask}
+    <main class="q"><div class="card" id="qcard">${qCard(st.cur)}
+      <div class="nav2"><button class="btn ghost" data-act="prev" ${st.cur === 0 ? "disabled" : ""}>Câu trước</button><button class="btn ghost" data-act="next" ${st.cur === TOTAL - 1 ? "disabled" : ""}>Câu sau</button></div></div>${navHtml()}</main>`;
+}
+
+function resultView() {
+  const r = scores();
+  return `<div class="result">
+    <div><h1>Đã nộp bài</h1><p class="sub">${esc(who.name.trim())} · Lớp ${esc(who.cls.trim())} · Thời gian làm bài ${elapsed()}</p><p class="sub" id="syncStatus" aria-live="polite">${saveState || "Đang chuẩn bị gửi điểm..."}</p></div>
+    ${st.auto ? `<div class="explain" style="margin:0"><b>Bài được nộp tự động</b>${st.auto === "time" ? "Đã hết 35 phút làm bài." : "Em đã chuyển sang tab hoặc cửa sổ khác trong lúc làm bài."}</div>` : ""}
+    <div class="card" style="display:grid;gap:14px"><div class="big num">${fmt(r.total)}<small> / 10 điểm</small></div>
+      <div class="parts"><div class="part"><span>Phần I · Trắc nghiệm</span><b>${fmt(r.mp)} / 5</b></div>
+      <div class="part"><span>Phần II · Đúng sai</span><b>${fmt(r.d)} / 5</b></div></div></div></div>`;
+}
+
+function render(keep) {
+  const y = window.scrollY;
+  app.innerHTML = st === null ? startView() : st.done ? resultView() : quizView();
+  if (keep) window.scrollTo(0, y);
+}
+setInterval(() => {
+  if (!st || st.done) return;
+  if (left() <= 0) { submit("time"); return; }
+  const c = $("#clock"); if (c) { c.textContent = "Còn " + mmss(left()); c.classList.toggle("low", left() <= 300); }
+}, 1000);
+
+/* ---------- sự kiện ---------- */
+function submit(auto) { if (!st || st.done) return; st.done = true; st.auto = auto || false; st.ask = false; st.tEnd = Date.now(); saveState = "Đang gửi kết quả về Google Sheets..."; render(false); sendResultToSheet(); window.scrollTo(0, 0); }
+function go(p) { st.cur = Math.max(0, Math.min(TOTAL - 1, p)); render(false); const c = $("#qcard"); if (c && window.innerWidth <= 860) c.scrollIntoView({ block: "start", behavior: "smooth" }); }
+app.addEventListener("input", (e) => {
+  if (e.target.id === "fname") who.name = e.target.value; else if (e.target.id === "fclass") who.cls = e.target.value; else return;
+  $("#go").disabled = !(who.name.trim() && who.cls.trim());
+});
+app.addEventListener("click", (e) => {
+  const b = e.target.closest("[data-act]"); if (!b || (st && st.done)) return;
+  const a = b.dataset.act;
+  if (a === "start") { if (!who.name.trim() || !who.cls.trim()) return; st = fresh(); render(false); window.scrollTo(0, 0); }
+  else if (a === "pick") { st.mcq[+b.dataset.i] = +b.dataset.o; render(true); }
+  else if (a === "tf") { st.ds[+b.dataset.j][+b.dataset.k] = b.dataset.v === "true"; render(true); }
+  else if (a === "go") go(+b.dataset.i);
+  else if (a === "prev") go(st.cur - 1);
+  else if (a === "next") go(st.cur + 1);
+  else if (a === "finish") { st.ask = true; render(true); }
+  else if (a === "cancel") { st.ask = false; render(true); }
+  else if (a === "submit") submit(false);
+});
+document.addEventListener("keydown", (e) => {
+  if (!st || st.done || e.ctrlKey || e.metaKey || e.altKey) return;
+  const k = e.key.toLowerCase();
+  if (k === "arrowright") go(st.cur + 1);
+  else if (k === "arrowleft") go(st.cur - 1);
+  else if (real(st.cur) < MCQ.length && k.length === 1 && "abcd".includes(k)) { st.mcq[real(st.cur)] = st.perm[real(st.cur)][k.charCodeAt(0) - 97]; render(true); }
+});
+document.addEventListener("visibilitychange", () => { if (document.hidden && st && !st.done) submit(true); });
+render(false);
+</script>
+
+</body></html>
